@@ -96,12 +96,14 @@ for day in range(1, 43):
     for (r, s) in existing_connections:
         max_capacity = next(c["max_capacity"] for c in con if c["from_id"] == r and c["to_id"] == s)
         
-        # Generăm un nume unic bazat pe ID-urile de la rafinărie și tanc de stocare
-        constraint_name = f"ConnectionCapacity_{r}_{s}"
+        # Creăm un nume unic pentru constrângere
+        constraint_name = f"ConnectionCapacity_{constraint_id}"
+        constraint_id += 1  # Incrementăm contorul pentru a asigura unicitatea
         
-        # Adăugăm constrângerea fără a verifica adăugarea anterioară, deoarece numele este unic
-        problem += transport[(r, s)] <= max_capacity, constraint_name
-
+        # Doar dacă constrângerea nu a fost deja adăugată
+        if (r, s) not in added_constraints:
+            problem += transport[(r, s)] <= max_capacity, constraint_name
+            added_constraints.add((r, s))
 
     # 4. Daily client demand fulfillment with penalty for unmet demand
     for c in clients_dict.keys():
